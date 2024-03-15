@@ -11,10 +11,10 @@ typedef ScrollsToTopCallback = Future<void> Function(ScrollsToTopEvent event);
 class ScrollsToTopEvent {
   /// Create new event from [ScrollController.animateTo] arguments
   ScrollsToTopEvent(
-    this.to, {
-    required this.duration,
-    required this.curve,
-  });
+      this.to, {
+        required this.duration,
+        required this.curve,
+      });
 
   /// [to] from [ScrollController.animateTo]
   final double to;
@@ -36,7 +36,6 @@ class ScrollsToTop extends StatefulWidget {
   /// Creates new ScrollsToTop widget
   const ScrollsToTop({
     Key? key,
-    this.uniqueKey,
     required this.child,
     required this.onScrollsToTop,
   }) : super(key: key);
@@ -47,14 +46,12 @@ class ScrollsToTop extends StatefulWidget {
   /// Callback for handle scrolls-to-top event
   final ScrollsToTopCallback onScrollsToTop;
 
-  /// Unique key for VisibilityDetector
-  final Key? uniqueKey;
-
   @override
   State<ScrollsToTop> createState() => _ScrollsToTopState();
 }
 
 class _ScrollsToTopState extends State<ScrollsToTop> {
+  final _uniqueKey = GlobalKey();
   ScrollController? _primaryScrollController;
   ScrollPositionWithSingleContext? _scrollPositionWithSingleContext;
   bool _attached = false;
@@ -80,14 +77,12 @@ class _ScrollsToTopState extends State<ScrollsToTop> {
       _attach(context);
       _attached = true;
     }
-    return widget.uniqueKey == null
-        ? widget.child
-        : VisibilityDetector(
-            key: widget.uniqueKey!,
-            onVisibilityChanged: (info) {
-              _visible = info.visibleFraction == 1;
-            },
-            child: widget.child);
+    return VisibilityDetector(
+        key: _uniqueKey,
+        onVisibilityChanged: (info) {
+          _visible = info.visibleFraction == 1;
+        },
+        child: widget.child);
   }
 
   void _attach(BuildContext context) {
@@ -97,7 +92,7 @@ class _ScrollsToTopState extends State<ScrollsToTop> {
     if (primaryScrollController == null) return;
 
     final scrollPositionWithSingleContext =
-        _FakeScrollPositionWithSingleContext(
+    _FakeScrollPositionWithSingleContext(
       context: context,
       callback: (event) async {
         if (_visible) {
@@ -119,18 +114,18 @@ class _FakeScrollPositionWithSingleContext
     required ScrollsToTopCallback callback,
   })  : _callback = callback,
         super(
-          physics: const NeverScrollableScrollPhysics(),
-          context: _FakeScrollContext(context),
-        );
+        physics: const NeverScrollableScrollPhysics(),
+        context: _FakeScrollContext(context),
+      );
 
   final ScrollsToTopCallback _callback;
 
   @override
   Future<void> animateTo(
-    double to, {
-    required Duration duration,
-    required Curve curve,
-  }) {
+      double to, {
+        required Duration duration,
+        required Curve curve,
+      }) {
     return _callback(
       ScrollsToTopEvent(to, duration: duration, curve: curve),
     );

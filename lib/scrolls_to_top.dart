@@ -86,8 +86,6 @@ class _ScrollsToTopState extends State<ScrollsToTop> {
             key: widget.uniqueKey!,
             onVisibilityChanged: (info) {
               _visible = info.visibleFraction == 1;
-              print(
-                  'VisibilityDetector: ${info.visibleFraction}, ${widget.onScrollsToTop.hashCode}');
             },
             child: widget.child);
   }
